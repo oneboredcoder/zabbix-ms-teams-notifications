@@ -1,0 +1,66 @@
+#!/bin/bash
+
+################################################################################
+#
+#  DESCRIPTION:    Send Zabbix notifications to Microsoft Teams using webhook
+#  VERSION:        1.0
+#  AUTHOR:         pawel.grondal@gmail.com
+#
+################################################################################
+
+subject="$1" # First argument send by Zabbix - {ALERT.SUBJECT}
+message="$2" # Second argument send by Zabbix - {ALERT.MESSAGE}
+url="$3" # Third argument send by Zabbix - Teams webhook url
+
+curl_header='-H "Content-Type: application/json"'
+
+################################################################################
+# Cut data send in Zabbix message field into separate entries and assign them
+# into variables
+# {HOST.NAME};{ITEM.LASTVALUE};{ITEM.ID}
+# delimeter = ;
+################################################################################
+host_name=$(echo ${message} | cut -d ";" -f 1)
+last_value=$(echo ${message} | cut -d ";" -f 2)
+item_id=$(echo ${message} | cut -d ";" -f 3)
+
+################################################################################
+# Set a theme for notification in Teams
+# Green = OK
+# Red = PROBLEM
+################################################################################
+recover_str='^.*OK.*'
+problem_str='^.*PROBLEM.*'
+if [[ "$subject" =~ ${recover_str} ]]; then
+	theme_color='59DB8F'
+elif [[ "$subject" =~ ${problem_str} ]]; then
+	theme_color='E45959'
+else
+	theme_color='555555'
+fi
+
+################################################################################
+# Prepare payload
+################################################################################
+payload=$(cat << EOF
+"{
+    \\"@context\\":\\"http://schema.org/extensions\\",
+    \\"@type\\":\\"MessageCard\\",
+    \\"title\\":\\"${subject}\\",
+    \\"summary\\":\\"Zabbix notification\\",
+    \\"themeColor\\":\\"${theme_color}\\",
+    \\"sections\\":[{
+        \\"facts\\":[
+            {\\"name\\":\\"Host\\",\\"value\\":\\"${host_name}\\"},
+            {\\"name\\":\\"Last value\\",\\"value\\":\\"${last_value}\\"},
+            {\\"name\\":\\"Graph\\",\\"value\\":\\"[Graph](<zabbix url>/history.php?action=showgraph&itemids[]=${item_id})\\"}
+        ]
+    }]
+}"
+EOF
+)
+
+################################################################################
+# Finally, send everything to Teams
+################################################################################
+eval curl $curl_header -d $payload $url
