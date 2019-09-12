@@ -17,12 +17,11 @@ curl_header='-H "Content-Type: application/json"'
 ################################################################################
 # Cut data send in Zabbix message field into separate entries and assign them
 # into variables
-# {HOST.NAME};{ITEM.LASTVALUE};{ITEM.ID}
+# {HOST.NAME};{ITEM.LASTVALUE}
 # delimeter = ;
 ################################################################################
 host_name=$(echo ${message} | cut -d ";" -f 1)
 last_value=$(echo ${message} | cut -d ";" -f 2)
-item_id=$(echo ${message} | cut -d ";" -f 3)
 
 ################################################################################
 # Set a theme for notification in Teams
@@ -53,7 +52,6 @@ payload=$(cat << EOF
         \\"facts\\":[
             {\\"name\\":\\"Host\\",\\"value\\":\\"${host_name}\\"},
             {\\"name\\":\\"Last value\\",\\"value\\":\\"${last_value}\\"},
-            {\\"name\\":\\"Graph\\",\\"value\\":\\"[Graph](<zabbix url>/history.php?action=showgraph&itemids[]=${item_id})\\"}
         ]
     }]
 }"
