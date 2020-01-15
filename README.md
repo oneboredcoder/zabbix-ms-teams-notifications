@@ -1,9 +1,2 @@
-# Zabbix MS Teams Notifications
-
-Script used to send notifications from Zabbix to Microsoft Teams using webhook
-
-## To-Do
-* make arguments optional and build payload based on what is provided,
-* find a way to send graphs as images (might require change on MS Teams side),
-* create installation and usage instruction
-* probably a lot more...
+# DEPRACTED
+Zabbix 4.4 comes with built in support for sending webhook requests. Therefore this script is no longer needed, and won't be maintained.
