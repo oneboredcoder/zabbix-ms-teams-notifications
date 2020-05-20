@@ -4,7 +4,7 @@
 #
 #  DESCRIPTION:    Send Zabbix notifications to Microsoft Teams using webhook
 #  VERSION:        1.0
-#  AUTHOR:         pawel.grondal@gmail.com
+#  AUTHOR:         https://github.com/oneboredcoder/
 #
 ################################################################################
 
